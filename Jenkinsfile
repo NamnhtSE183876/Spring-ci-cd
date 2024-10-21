@@ -67,6 +67,7 @@ pipeline {
                 echo "MAIL_USERNAME: $MAIL_USERNAME"
                 echo "MAIL_PASSWORD: $MAIL_PASSWORD"
                 echo "GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID"
+                echo "Firebase credentials path: $FIREBASE_FILE"
 
                 // Deploy Docker container cho ứng dụng Spring Boot
                 sh 'docker stop myapp || true'
