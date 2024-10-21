@@ -17,6 +17,9 @@ public class FirebaseInitializer {
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException, FileNotFoundException {
+        if (firebaseFilePath == null || firebaseFilePath.isEmpty()) {
+            throw new IllegalArgumentException("FIREBASE_CREDENTIALS environment variable is not set.");
+        }
         FileInputStream serviceAccount =
                 new FileInputStream(firebaseFilePath);
 
