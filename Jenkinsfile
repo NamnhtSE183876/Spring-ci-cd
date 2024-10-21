@@ -16,17 +16,19 @@ pipeline {
     }
 
     stages {
-        stage('Build with maven') {
+        stage('Build with Maven') {
             steps {
-                // Build dự án Spring Boot bằng Maven
+                // Kiểm tra phiên bản Maven và Java
                 sh 'mvn --version'
                 sh 'java --version'
+                // Build dự án Spring Boot
                 sh 'mvn clean package -DskipTests=true'
             }
         }
 
-        stage('Packaging/Pushing image') {
+        stage('Packaging/Pushing Image') {
             steps {
+                // Đăng nhập vào Docker Registry và đẩy image
                 withDockerRegistry(credentialsId: 'dockerhub', url: 'https://index.docker.io/v1/') {
                     sh 'docker build -t lagux/springboot .'
                     sh 'docker push lagux/springboot'
@@ -34,24 +36,50 @@ pipeline {
             }
         }
 
-        stage('Deploy SQL server') {
+        stage('Deploy SQL Server') {
             steps {
                 echo 'Deploying SQL Server and cleaning'
+                // Kéo image SQL Server
                 sh 'docker pull mcr.microsoft.com/mssql/server:2019-latest'
-                sh 'docker network create dev || echo "this network already exists"'
+                // Tạo mạng Docker nếu chưa tồn tại
+                sh 'docker network create dev || echo "This network already exists"'
+                // Dừng và xóa container SQL Server nếu đã tồn tại
                 sh 'docker stop mssql || true'
                 sh 'docker rm mssql || true'
-                sh 'docker run -d --name mssql --network dev -e ACCEPT_EULA=Y -e SA_PASSWORD=$DB_PASSWORD -p 1433:1433 mcr.microsoft.com/mssql/server:2019-latest'
+                // Chạy container SQL Server mới
+                sh """
+                docker run -d --name mssql --network dev \
+                -e ACCEPT_EULA=Y \
+                -e SA_PASSWORD=$DB_PASSWORD \
+                -p 1433:1433 \
+                mcr.microsoft.com/mssql/server:2019-latest
+                """
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Application') {
             steps {
+                // In ra biến môi trường để kiểm tra
+                echo "Deploying application with the following environment variables:"
+                echo "DB_URL: $DB_URL"
+                echo "DB_USERNAME: $DB_USERNAME"
+                echo "DB_PASSWORD: $DB_PASSWORD"
+                echo "MAIL_USERNAME: $MAIL_USERNAME"
+                echo "MAIL_PASSWORD: $MAIL_PASSWORD"
+                echo "GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID"
+
                 // Deploy Docker container cho ứng dụng Spring Boot
                 sh """
                 docker stop myapp || true
                 docker rm myapp || true
-                docker run -d --name myapp --network dev -e SPRING_DATASOURCE_URL=$DB_URL -e SPRING_DATASOURCE_USERNAME=$DB_USERNAME -e SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD -e SPRING_MAIL_USERNAME=$MAIL_USERNAME -e SPRING_MAIL_PASSWORD=$MAIL_PASSWORD -e GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID -p 8080:8080 lagux/springboot
+                docker run -d --name myapp --network dev \
+                -e SPRING_DATASOURCE_URL=$DB_URL \
+                -e SPRING_DATASOURCE_USERNAME=$DB_USERNAME \
+                -e SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD \
+                -e SPRING_MAIL_USERNAME=$MAIL_USERNAME \
+                -e SPRING_MAIL_PASSWORD=$MAIL_PASSWORD \
+                -e GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID \
+                -p 8080:8080 lagux/springboot
                 """
             }
         }
