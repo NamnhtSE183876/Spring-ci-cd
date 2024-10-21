@@ -12,7 +12,6 @@ pipeline {
         MAIL_USERNAME = credentials('mail-username')
         MAIL_PASSWORD = credentials('mail-password')
         GOOGLE_CLIENT_ID = credentials('google-api-key')
-        FIREBASE_FILE = credentials('firebase-file')
     }
 
     stages {
@@ -80,6 +79,8 @@ pipeline {
                     -e SPRING_MAIL_USERNAME="$MAIL_USERNAME" \
                     -e SPRING_MAIL_PASSWORD="$MAIL_PASSWORD" \
                     -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+                    -e FIREBASE_CREDENTIALS="/app/credentials/firebasenew.json" \
+                    -v \$(pwd)/firebasenew.json:/app/credentials/firebasenew.json \
                     -p 8082:8080 lagux/springboot
                 """
             }
