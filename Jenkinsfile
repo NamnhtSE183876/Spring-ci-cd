@@ -39,6 +39,8 @@ pipeline {
                 echo 'Deploying SQL Server and cleaning'
                 sh 'docker pull mcr.microsoft.com/mssql/server:2019-latest'
                 sh 'docker network create dev || echo "this network already exists"'
+                sh 'docker stop mssql'
+                sh 'docker rm mssql'
                 sh 'docker run -d --name mssql --network dev -e ACCEPT_EULA=Y -e SA_PASSWORD=$DB_PASSWORD -p 1433:1433 mcr.microsoft.com/mssql/server:2019-latest'
             }
         }
@@ -47,9 +49,9 @@ pipeline {
             steps {
                 // Deploy Docker container cho ứng dụng Spring Boot
                 sh """
-                docker stop your-app-container || true
-                docker rm your-app-container || true
-                docker run -d --name your-app-container --network dev -e SPRING_DATASOURCE_URL=$DB_URL -e SPRING_DATASOURCE_USERNAME=$DB_USERNAME -e SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD -e SPRING_MAIL_USERNAME=$MAIL_USERNAME -e SPRING_MAIL_PASSWORD=$MAIL_PASSWORD -e GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID -p 8080:8080 lagux/springboot
+                docker stop myapp || true
+                docker rm myapp || true
+                docker run -d --name myapp --network dev -e SPRING_DATASOURCE_URL=$DB_URL -e SPRING_DATASOURCE_USERNAME=$DB_USERNAME -e SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD -e SPRING_MAIL_USERNAME=$MAIL_USERNAME -e SPRING_MAIL_PASSWORD=$MAIL_PASSWORD -e GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID -p 8080:8080 lagux/springboot
                 """
             }
         }
