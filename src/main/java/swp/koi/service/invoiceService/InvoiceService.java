@@ -1,0 +1,29 @@
+package swp.koi.service.invoiceService;
+
+import swp.koi.dto.response.InvoiceResponseDto;
+import swp.koi.model.Invoice;
+import swp.koi.model.enums.InvoiceStatusEnums;
+
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+public interface InvoiceService {
+
+    Invoice createInvoiceForAuctionWinner(int lotId, int memberId);
+
+    void updateStatusOfInvoice();
+
+    String regeneratePaymentLinkForInvoice(int invoiceId) throws UnsupportedEncodingException;
+
+    List<Invoice> getAllInvoicesForAuctionWinner();
+
+    Invoice updateInvoiceAddress(double kilometer, int invoiceId, String address);
+
+    Invoice getInvoiceForSpecificLot(int lotId);
+
+    void assignStaffDelivery(Integer invoiceId, Integer accountId);
+
+    List<Invoice> getAllDeliveringInvoices();
+
+    void updateInvoiceStatus(Integer invoiceId, InvoiceStatusEnums status);
+}
