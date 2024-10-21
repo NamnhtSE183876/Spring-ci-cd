@@ -13,10 +13,12 @@ import java.io.IOException;
 @Configuration
 public class FirebaseInitializer {
 
+    String firebaseFilePath = System.getenv("FIREBASE_FILE");
+
     @Bean
     public FirebaseApp firebaseApp() throws IOException, FileNotFoundException {
         FileInputStream serviceAccount =
-                new FileInputStream("src/main/resources/firebasenew.json");
+                new FileInputStream(firebaseFilePath);
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
