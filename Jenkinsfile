@@ -69,18 +69,10 @@ pipeline {
                 echo "GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID"
 
                 // Deploy Docker container cho ứng dụng Spring Boot
-                sh """
-                docker stop myapp || true
-                docker rm myapp || true
-                docker run -d --name myapp --network dev \
-                -e SPRING_DATASOURCE_URL=$DB_URL \
-                -e SPRING_DATASOURCE_USERNAME=$DB_USERNAME \
-                -e SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD \
-                -e SPRING_MAIL_USERNAME=$MAIL_USERNAME \
-                -e SPRING_MAIL_PASSWORD=$MAIL_PASSWORD \
-                -e GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID \
-                -p 8080:8080 lagux/springboot
-                """
+                sh 'docker stop myapp || true'
+                sh 'docker rm myapp || true'
+                sh 'docker run -d --name myapp -e SPRING_DATASOURCE_URL=$DB_URL -e SPRING_DATASOURCE_USERNAME=$DB_USERNAME -e SPRING_DATASOURCE_PASSWORD=$DB_PASSWORD -e SPRING_MAIL_USERNAME=$MAIL_USERNAME -e SPRING_MAIL_PASSWORD=$MAIL_PASSWORD -e GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID -p 8080:8080 lagux/springboot'
+
             }
         }
     }
