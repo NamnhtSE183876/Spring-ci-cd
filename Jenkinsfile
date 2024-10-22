@@ -13,6 +13,7 @@ pipeline {
         MAIL_PASSWORD = credentials('mail-password')
         GOOGLE_CLIENT_ID = credentials('google-api-key')
         FIREBASE_FILE = credentials('firebase-file')
+        HOST = credentials("host-ip")
     }
 
     stages {
@@ -93,7 +94,9 @@ pipeline {
                     sh 'docker rm myapp || true'
                     sh """
                     docker run -d --name myapp --network dev \
-                        -e SPRING_DATASOURCE_URL="$DB_URL" \
+                        -e SPRING_DATASOURCE_URL="jdbc:sqlserver://${HOST}:1433;databaseName=Koi_project;encrypt=true;trustServerCertificate=true" \
+                        -e VNPAY_URL="http://${HOST}/api/pay/vn-pay-callback" \
+                        -e SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI="http://${HOST}/authenticate/login-google" \
                         -e SPRING_DATASOURCE_USERNAME="$DB_USERNAME" \
                         -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
                         -e SPRING_MAIL_USERNAME="$MAIL_USERNAME" \
