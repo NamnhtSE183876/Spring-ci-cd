@@ -30,10 +30,10 @@ public class SocketIOConfig {
     private final UserDetailsService userDetailsService;
 
     // I have set the configuration values in application.yaml file
-    @Value("${socket.host}")
+    @Value("54.169.209.196")
     private String socketHost;
 
-    @Value("${socket.port}")
+    @Value("8081")
     private int socketPort;
 
     // SocketIOServer class is used to create a socket server
@@ -71,7 +71,6 @@ public class SocketIOConfig {
 
         server = new SocketIOServer(config);
         server.start();
-        System.out.println("Socket.IO server started on port 8081");
 
         server.addConnectListener(client -> log.info("Client connected: {}", client.getSessionId()));
         server.addDisconnectListener(client -> log.info("Client disconnected: {}", client.getSessionId()));
