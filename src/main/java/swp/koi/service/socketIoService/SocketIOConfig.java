@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 import swp.koi.model.enums.TokenType;
 import swp.koi.service.jwtService.JwtService;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 /**
  * Configuration class for setting up and managing a Socket.IO server.
  * It initializes the server with the specified host and port from the application configuration,
@@ -57,6 +60,16 @@ public class SocketIOConfig {
         config.setHostname(socketHost);
         config.setPort(socketPort);
 
+        try (InputStream keyStoreInputStream = new FileInputStream("src/main/resources/keystore.p12")) {
+            config.setKeyStore(keyStoreInputStream); // Truyền InputStream vào setKeyStore
+            config.setKeyStorePassword("123123"); // Mật khẩu keystore
+            config.setKeyStoreFormat("PKCS12");
+
+        } catch (Exception e) {
+            log.error("Failed to load keystore", e);
+            throw new RuntimeException("Could not load keystore", e);
+        }
+
 //        config.setAuthorizationListener(auth -> {
 //            var token = auth.getHttpHeaders().get("socket-token");
 //            if (!token.isEmpty()) {
@@ -77,6 +90,7 @@ public class SocketIOConfig {
 
         return server;
     }
+
 
     /**
      * Stops the Socket.IO server gracefully when the application is shutting down.
