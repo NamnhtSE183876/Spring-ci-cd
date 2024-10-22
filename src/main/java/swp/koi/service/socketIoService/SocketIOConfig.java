@@ -61,19 +61,6 @@ public class SocketIOConfig {
         config.setHostname(socketHost);
         config.setPort(socketPort);
 
-        try (InputStream keyStoreInputStream = getClass().getClassLoader().getResourceAsStream("keystore.p12")) {
-            if (keyStoreInputStream == null) {
-                throw new FileNotFoundException("Keystore file not found in resources.");
-            }
-            config.setKeyStore(keyStoreInputStream);
-            config.setKeyStorePassword("123123");
-            config.setKeyStoreFormat("PKCS12");
-        } catch (Exception e) {
-            log.error("Failed to load keystore", e);
-            throw new RuntimeException("Could not load keystore", e);
-        }
-
-
 //        config.setAuthorizationListener(auth -> {
 //            var token = auth.getHttpHeaders().get("socket-token");
 //            if (!token.isEmpty()) {
