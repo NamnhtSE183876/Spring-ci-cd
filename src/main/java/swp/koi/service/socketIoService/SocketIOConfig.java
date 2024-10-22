@@ -30,10 +30,10 @@ public class SocketIOConfig {
     private final UserDetailsService userDetailsService;
 
     // I have set the configuration values in application.yaml file
-    @Value("172.31.32.10")
+    @Value("${socket.host}")
     private String socketHost;
 
-    @Value("8081")
+    @Value("${socket.port}")
     private int socketPort;
 
     // SocketIOServer class is used to create a socket server
