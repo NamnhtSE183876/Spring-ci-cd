@@ -71,6 +71,7 @@ public class SocketIOConfig {
 
         server = new SocketIOServer(config);
         server.start();
+        System.out.println("Socket.IO server started on port 8081");
 
         server.addConnectListener(client -> log.info("Client connected: {}", client.getSessionId()));
         server.addDisconnectListener(client -> log.info("Client disconnected: {}", client.getSessionId()));
