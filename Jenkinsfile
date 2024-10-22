@@ -57,6 +57,25 @@ pipeline {
 //             }
 //         }
 
+        stage('Deploy Redis') {
+                    steps {
+                        echo 'Deploying Redis...'
+
+                        sh 'docker pull redis:latest'
+
+                        sh 'docker network create dev || echo "This network already exists"'
+
+                        sh 'docker stop redis || true'
+                        sh 'docker rm redis || true'
+
+                        sh """
+                        docker run -d --name redis --network dev \
+                            -p 6379:6379 \
+                            redis:latest
+                        """
+                    }
+                }
+
         stage('Deploy Application') {
             steps {
                 echo "Deploying application with the following environment variables:"
