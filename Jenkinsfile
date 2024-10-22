@@ -66,23 +66,28 @@ pipeline {
                 echo "MAIL_USERNAME: $MAIL_USERNAME"
                 echo "MAIL_PASSWORD: $MAIL_PASSWORD"
                 echo "GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID"
-                echo "FIREBASE_FILE: $FIREBASE_FILE"
 
-                // Deploy Docker container cho ứng dụng Spring Boot
-                sh 'docker stop myapp || true'
-                sh 'docker rm myapp || true'
-                sh """
-                docker run -d --name myapp --network dev \
-                    -e SPRING_DATASOURCE_URL="$DB_URL" \
-                    -e SPRING_DATASOURCE_USERNAME="$DB_USERNAME" \
-                    -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
-                    -e SPRING_MAIL_USERNAME="$MAIL_USERNAME" \
-                    -e SPRING_MAIL_PASSWORD="$MAIL_PASSWORD" \
-                    -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
-                    -e FIREBASE_FILE="/app/config/firebase.json" \
-                    --mount type=bind,source="${WORKSPACE}/.jenkins/secrets/${FIREBASE_FILE}",target=/app/config/firebase.json \
-                    -p 8082:8080 lagux/springboot
-                """
+                // Sử dụng withCredentials để lấy file bí mật
+                withCredentials([file(credentialsId: 'firebase-file', variable: 'FIREBASE_FILE_PATH')]) {
+                    // Copy firebase.json vào một vị trí tạm thời
+                    sh "cp ${FIREBASE_FILE_PATH} ${WORKSPACE}/config/firebase.json"
+
+                    // Deploy Docker container cho ứng dụng Spring Boot
+                    sh 'docker stop myapp || true'
+                    sh 'docker rm myapp || true'
+                    sh """
+                    docker run -d --name myapp --network dev \
+                        -e SPRING_DATASOURCE_URL="$DB_URL" \
+                        -e SPRING_DATASOURCE_USERNAME="$DB_USERNAME" \
+                        -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
+                        -e SPRING_MAIL_USERNAME="$MAIL_USERNAME" \
+                        -e SPRING_MAIL_PASSWORD="$MAIL_PASSWORD" \
+                        -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+                        -e FIREBASE_FILE="/app/config/firebase.json" \
+                        --mount type=bind,source="${WORKSPACE}/config/firebase.json",target=/app/config/firebase.json \
+                        -p 8082:8080 lagux/springboot
+                    """
+                }
             }
         }
     }
