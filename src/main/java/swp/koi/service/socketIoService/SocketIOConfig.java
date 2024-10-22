@@ -14,6 +14,7 @@ import swp.koi.model.enums.TokenType;
 import swp.koi.service.jwtService.JwtService;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 /**
@@ -60,15 +61,18 @@ public class SocketIOConfig {
         config.setHostname(socketHost);
         config.setPort(socketPort);
 
-        try (InputStream keyStoreInputStream = new FileInputStream("src/main/resources/keystore.p12")) {
-            config.setKeyStore(keyStoreInputStream); // Truyền InputStream vào setKeyStore
-            config.setKeyStorePassword("123123"); // Mật khẩu keystore
+        try (InputStream keyStoreInputStream = getClass().getClassLoader().getResourceAsStream("keystore.p12")) {
+            if (keyStoreInputStream == null) {
+                throw new FileNotFoundException("Keystore file not found in resources.");
+            }
+            config.setKeyStore(keyStoreInputStream);
+            config.setKeyStorePassword("your-keystore-password");
             config.setKeyStoreFormat("PKCS12");
-
         } catch (Exception e) {
             log.error("Failed to load keystore", e);
             throw new RuntimeException("Could not load keystore", e);
         }
+
 
 //        config.setAuthorizationListener(auth -> {
 //            var token = auth.getHttpHeaders().get("socket-token");
