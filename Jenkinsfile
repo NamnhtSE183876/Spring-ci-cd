@@ -104,7 +104,7 @@ pipeline {
                         -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
                         -e FIREBASE_FILE="/app/config/firebase.json" \
                         --mount type=bind,source="${FIREBASE_FILE_PATH}",target=/app/config/firebase.json \
-                        -p 8082:8080 lagux/springboot
+                        -p 8443:8443 lagux/springboot
                     """
                 }
             }
