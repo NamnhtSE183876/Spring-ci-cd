@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
@@ -17,11 +18,18 @@ import java.util.*;
 public class VnpayConfig {
     public static String vnp_PayUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
-    @Value("${vnpay.url}")
-    public String vnp_ReturnUrl;
+    public static String vnp_ReturnUrl;
     public static String vnp_TmnCode = "58X4B4HP";
     public static String secretKey = "VRLDWNVWDNPCOEPBZUTWSEDQAGXJCNGZ";
     public static String vnp_ApiUrl = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+
+    @Value("${vnpay.url}")
+    private String vnpReturnUrl;
+
+    @PostConstruct
+    public void init() {
+        vnp_ReturnUrl = vnpReturnUrl;
+    }
 
     public static String md5(String message) {
         String digest = null;
