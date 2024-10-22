@@ -66,7 +66,7 @@ public class SocketIOConfig {
                 throw new FileNotFoundException("Keystore file not found in resources.");
             }
             config.setKeyStore(keyStoreInputStream);
-            config.setKeyStorePassword("your-keystore-password");
+            config.setKeyStorePassword("123123");
             config.setKeyStoreFormat("PKCS12");
         } catch (Exception e) {
             log.error("Failed to load keystore", e);
