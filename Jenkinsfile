@@ -95,8 +95,8 @@ pipeline {
                     sh """
                     docker run -d --name myapp --network dev \
                         -e SPRING_DATASOURCE_URL="jdbc:sqlserver://${HOST}:1433;databaseName=Koi_project;encrypt=true;trustServerCertificate=true" \
-                        -e VNPAY_URL="http://${HOST}:8082/api/pay/vn-pay-callback" \
-                        -e SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI="http://${HOST}:8082/authenticate/login-google" \
+                        -e VNPAY_URL="https://${HOST}:8443/api/pay/vn-pay-callback" \
+                        -e SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI="https://${HOST}:8443/authenticate/login-google" \
                         -e SPRING_DATASOURCE_USERNAME="$DB_USERNAME" \
                         -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
                         -e SPRING_MAIL_USERNAME="$MAIL_USERNAME" \
