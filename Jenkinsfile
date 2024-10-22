@@ -69,9 +69,6 @@ pipeline {
 
                 // Sử dụng withCredentials để lấy file bí mật
                 withCredentials([file(credentialsId: 'firebase-file', variable: 'FIREBASE_FILE_PATH')]) {
-                    // Copy firebase.json vào một vị trí tạm thời
-                    sh "cp ${FIREBASE_FILE_PATH} ${WORKSPACE}/config/firebase.json"
-
                     // Deploy Docker container cho ứng dụng Spring Boot
                     sh 'docker stop myapp || true'
                     sh 'docker rm myapp || true'
@@ -84,7 +81,7 @@ pipeline {
                         -e SPRING_MAIL_PASSWORD="$MAIL_PASSWORD" \
                         -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
                         -e FIREBASE_FILE="/app/config/firebase.json" \
-                        --mount type=bind,source="${WORKSPACE}/config/firebase.json",target=/app/config/firebase.json \
+                        --mount type=bind,source="${FIREBASE_FILE_PATH}",target=/app/config/firebase.json \
                         -p 8082:8080 lagux/springboot
                     """
                 }
