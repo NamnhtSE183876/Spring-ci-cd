@@ -12,6 +12,7 @@ pipeline {
         MAIL_USERNAME = credentials('mail-username')
         MAIL_PASSWORD = credentials('mail-password')
         GOOGLE_CLIENT_ID = credentials('google-api-key')
+        FIREBASE_FILE = credentials('firebase-file')
     }
 
     stages {
@@ -35,59 +36,56 @@ pipeline {
             }
         }
 
-        stage('Deploy SQL Server') {
+//         stage('Deploy SQL Server') {
+//             steps {
+//                 echo 'Deploying SQL Server and cleaning'
+//                 // Kéo image SQL Server
+//                 sh 'docker pull mcr.microsoft.com/mssql/server:2019-latest'
+//                 // Tạo mạng Docker nếu chưa tồn tại
+//                 sh 'docker network create dev || echo "This network already exists"'
+//                 // Dừng và xóa container SQL Server nếu đã tồn tại
+//                 sh 'docker stop mssql || true'
+//                 sh 'docker rm mssql || true'
+//                 // Chạy container SQL Server mới
+//                 sh """
+//                 docker run -d --name mssql --network dev \
+//                 -e ACCEPT_EULA=Y \
+//                 -e SA_PASSWORD=$DB_PASSWORD \
+//                 -p 1433:1433 \
+//                 mcr.microsoft.com/mssql/server:2019-latest
+//                 """
+//             }
+//         }
+
+        stage('Deploy Application') {
             steps {
-                echo 'Deploying SQL Server and cleaning'
-                // Kéo image SQL Server
-                sh 'docker pull mcr.microsoft.com/mssql/server:2019-latest'
-                // Tạo mạng Docker nếu chưa tồn tại
-                sh 'docker network create dev || echo "This network already exists"'
-                // Dừng và xóa container SQL Server nếu đã tồn tại
-                sh 'docker stop mssql || true'
-                sh 'docker rm mssql || true'
-                // Chạy container SQL Server mới
+                echo "Deploying application with the following environment variables:"
+                echo "DB_URL: $DB_URL"
+                echo "DB_USERNAME: $DB_USERNAME"
+                echo "DB_PASSWORD: $DB_PASSWORD"
+                echo "MAIL_USERNAME: $MAIL_USERNAME"
+                echo "MAIL_PASSWORD: $MAIL_PASSWORD"
+                echo "GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID"
+                echo "FIREBASE_FILE: $FIREBASE_FILE"
+
+                // Deploy Docker container cho ứng dụng Spring Boot
+                sh 'docker stop myapp || true'
+                sh 'docker rm myapp || true'
                 sh """
-                docker run -d --name mssql --network dev \
-                -e ACCEPT_EULA=Y \
-                -e SA_PASSWORD=$DB_PASSWORD \
-                -p 1433:1433 \
-                mcr.microsoft.com/mssql/server:2019-latest
+                docker run -d --name myapp --network dev \
+                    -e SPRING_DATASOURCE_URL="$DB_URL" \
+                    -e SPRING_DATASOURCE_USERNAME="$DB_USERNAME" \
+                    -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
+                    -e SPRING_MAIL_USERNAME="$MAIL_USERNAME" \
+                    -e SPRING_MAIL_PASSWORD="$MAIL_PASSWORD" \
+                    -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+                    -e FIREBASE_FILE="/app/config/firebase.json" \
+                    --mount type=bind,source="${WORKSPACE}/.jenkins/secrets/${FIREBASE_FILE}",target=/app/config/firebase.json \
+                    -p 8082:8080 lagux/springboot
                 """
             }
         }
-
-       stage('Deploy Application') {
-                   steps {
-                       // Sử dụng Jenkins credentials để lấy file FIREBASE_FILE
-                       withCredentials([file(credentialsId: 'firebase-file', variable: 'FIREBASE_FILE_PATH')]) {
-                           // In ra biến môi trường để kiểm tra
-                           echo "Deploying application with the following environment variables:"
-                           echo "DB_URL: $DB_URL"
-                           echo "DB_USERNAME: $DB_USERNAME"
-                           echo "DB_PASSWORD: $DB_PASSWORD"
-                           echo "MAIL_USERNAME: $MAIL_USERNAME"
-                           echo "MAIL_PASSWORD: $MAIL_PASSWORD"
-                           echo "GOOGLE_CLIENT_ID: $GOOGLE_CLIENT_ID"
-                           echo "FIREBASE_FILE_PATH: $FIREBASE_FILE_PATH" // Kiểm tra đường dẫn file Firebase
-
-                           // Deploy Docker container cho ứng dụng Spring Boot và mount FIREBASE_FILE
-                           sh 'docker stop myapp || true'
-                           sh 'docker rm myapp || true'
-                           sh """
-                           docker run -d --name myapp --network dev \
-                               -e SPRING_DATASOURCE_URL="$DB_URL" \
-                               -e SPRING_DATASOURCE_USERNAME="$DB_USERNAME" \
-                               -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
-                               -e SPRING_MAIL_USERNAME="$MAIL_USERNAME" \
-                               -e SPRING_MAIL_PASSWORD="$MAIL_PASSWORD" \
-                               -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
-                               -v $FIREBASE_FILE_PATH:/app/config/firebase.json \
-                               -p 8082:8080 lagux/springboot
-                           """
-                       }
-                   }
-               }
-           }
+    }
 
     post {
         always {

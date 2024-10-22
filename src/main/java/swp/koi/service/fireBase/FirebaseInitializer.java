@@ -13,7 +13,7 @@ import java.io.IOException;
 @Configuration
 public class FirebaseInitializer {
 
-    String firebaseFilePath = System.getenv("FIREBASE_CREDENTIALS");
+    String firebaseFilePath = System.getenv("FIREBASE_FILE");
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException, FileNotFoundException {
