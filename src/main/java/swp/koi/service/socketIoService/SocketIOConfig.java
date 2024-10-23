@@ -110,15 +110,10 @@ public class SocketIOConfig implements CommandLineRunner {
 
     private Socket socket;
 
-    // Constructor injection for the Socket instance
-    public Socket SocketIoConfig() throws URISyntaxException {
+    @Bean
+    public Socket socket() throws URISyntaxException {
         this.socket = IO.socket(SOCKET_IO_URL);
         return this.socket;
-    }
-
-    @Bean
-    public Socket socket() {
-        return socket;
     }
 
     @Override
