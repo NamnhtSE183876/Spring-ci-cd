@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import swp.koi.model.enums.TokenType;
@@ -15,6 +16,7 @@ import swp.koi.service.jwtService.JwtService;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -60,6 +62,13 @@ public class SocketIOConfig {
 
         config.setHostname(socketHost);
         config.setPort(socketPort);
+        try (InputStream keyStoreInputStream = new ClassPathResource("keystore.p12").getInputStream()) {
+            config.setKeyStore(keyStoreInputStream);
+            config.setKeyStorePassword("123123");
+            config.setKeyStoreFormat("PKCS12");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 //        config.setAuthorizationListener(auth -> {
 //            var token = auth.getHttpHeaders().get("socket-token");
