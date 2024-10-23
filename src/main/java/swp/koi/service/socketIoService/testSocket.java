@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class testSocket {
 
 //    private final EventListenerFactoryImpl eventListenerFactory;
-    private final SocketIOServer socketIOServer;
+    private final SocketIOConfig socketIOConfig;
 
 //    @GetMapping("/create")
 //    public void createSocketIo(@RequestParam String port) {
@@ -22,17 +22,13 @@ public class testSocket {
 
     private boolean isServerRunning = false;
 
-    public testSocket(SocketIOServer socketIOServer) {
-        this.socketIOServer = socketIOServer;
+    public testSocket(SocketIOConfig socketIOConfig) {
+        this.socketIOConfig = socketIOConfig;
     }
 
-    @GetMapping("/health/socket")
-    public String checkSocketIOHealth() {
-        int connectedClients = socketIOServer.getAllClients().size(); // Get all connected clients
-        if (connectedClients > 0) {
-            return "Socket.IO server is running with " + connectedClients + " active connections.";
-        } else {
-            return "Socket.IO server is running but no active connections.";
-        }
+    @GetMapping("/send")
+    public String sendMessage() {
+        socketIOConfig.sendMessage("Hello from Spring Boot!");
+        return "Message sent!";
     }
 }

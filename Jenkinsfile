@@ -77,6 +77,26 @@ pipeline {
                     }
                 }
 
+        stage('Pull and Run Socket.IO Server') {
+            steps {
+                echo 'Pulling and running Socket.IO server...'
+                        // Pull the latest Socket.IO server image
+                        sh 'docker pull lagux/socketio-server:latest'
+
+                        // Stop and remove any existing Socket.IO server container
+                        sh 'docker stop socketio-server || true'
+                        sh 'docker rm socketio-server || true'
+
+                        // Run the new Socket.IO server container
+                        sh """
+                        docker run -d --name socketio-server --network dev \
+                            -p 8081:8081 \
+                            lagux/socketio-server:latest
+                        """
+                        echo 'Socket.IO server deployed successfully.'
+            }
+        }
+
         stage('Deploy Application') {
             steps {
                 echo "Deploying application with the following environment variables:"
