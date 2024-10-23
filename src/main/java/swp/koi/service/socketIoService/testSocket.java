@@ -24,17 +24,15 @@ public class testSocket {
 
     public testSocket(SocketIOServer socketIOServer) {
         this.socketIOServer = socketIOServer;
-        if (socketIOServer != null) {
-            isServerRunning = true; // Assuming server starts successfully
-        }
     }
 
     @GetMapping("/health/socket")
     public String checkSocketIOHealth() {
-        if (isServerRunning) {
-            return "Socket.IO server is running";
+        int connectedClients = socketIOServer.getAllClients().size(); // Get all connected clients
+        if (connectedClients > 0) {
+            return "Socket.IO server is running with " + connectedClients + " active connections.";
         } else {
-            return "Socket.IO server is not running";
+            return "Socket.IO server is running but no active connections.";
         }
     }
 }
