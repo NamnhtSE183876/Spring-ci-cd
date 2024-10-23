@@ -19,10 +19,28 @@ public class SocketClient {
             socket = IO.socket("https://54.255.138.0:8081");
             socket.on("message", onNewMessage);
             socket.connect();
+
+            // Kiểm tra kết nối
+            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    System.out.println("Connected to Socket.IO server!");
+                }
+            });
+
+            // Xử lý ngắt kết nối
+            socket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    System.out.println("Disconnected from Socket.IO server.");
+                }
+            });
+
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
+
     public Socket getSocket() {
         return socket;
     }
