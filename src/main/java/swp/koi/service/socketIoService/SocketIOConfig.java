@@ -109,7 +109,7 @@ public class SocketIOConfig {
     @PostConstruct
     public void init() {
         try {
-            socket = IO.socket("https://socketio-server:8081");
+            socket = IO.socket("http://54.255.138.0:8081");
 
             socket.on(Socket.EVENT_CONNECT, args -> {
                 System.out.println("Connected to Socket.IO server!");
