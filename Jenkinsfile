@@ -76,20 +76,6 @@ pipeline {
                         """
                     }
                 }
-    stage('Deploy Socket.IO') {
-            steps {
-                echo 'Deploying Socket.IO server...'
-                sh 'docker pull socketio/socket.io'
-                sh 'docker network create dev || echo "This network already exists"'
-                sh 'docker stop socketio || true'
-                sh 'docker rm socketio || true'
-                sh """
-                docker run -d --name socketio --network dev \
-                    -p 8081:8081 \
-                    socketio/socket.io
-                """
-            }
-        }
 
         stage('Deploy Application') {
             steps {

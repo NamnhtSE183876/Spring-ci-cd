@@ -1,14 +1,25 @@
 package swp.koi.service.socketIoService;
 
+import com.corundumstudio.socketio.AuthorizationResult;
+import com.corundumstudio.socketio.Configuration;
+import com.corundumstudio.socketio.SocketIOServer;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
+import swp.koi.model.enums.TokenType;
+import swp.koi.service.jwtService.JwtService;
 
-import java.net.URISyntaxException;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Configuration class for setting up and managing a Socket.IO server.
@@ -23,100 +34,71 @@ import java.net.URISyntaxException;
 @Slf4j
 public class SocketIOConfig {
 
-//    private final JwtService jwtService;
-//    private final UserDetailsService userDetailsService;
-//
-//    // I have set the configuration values in application.yaml file
-//    @Value("${socket.host}")
-//    private String socketHost;
-//
-//    @Value("${socket.port}")
-//    private int socketPort;
-//
-//    // SocketIOServer class is used to create a socket server
-//    private SocketIOServer server;
-//
-//    /**
-//     * Creates and configures a SocketIOServer bean.
-//     *
-//     * <p>This method sets up the server hostname and port,
-//     * configures the authorization logic for incoming connections,
-//     * and starts the server. It also adds listeners for client connection
-//     * and disconnection events, logging relevant information.</p>
-//     *
-//     * @return the configured SocketIOServer instance
-//     */
-//    @Bean
-//    public SocketIOServer socketIOServer() {
-//        // Configuration object holds the server settings
-//        Configuration config = new Configuration();
-//
-//        config.setHostname(socketHost);
-//        config.setPort(socketPort);
-//        try (InputStream keyStoreInputStream = new ClassPathResource("keystore.p12").getInputStream()) {
-//            config.setKeyStore(keyStoreInputStream);
-//            config.setKeyStorePassword("123123");
-//            config.setKeyStoreFormat("PKCS12");
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-////        config.setAuthorizationListener(auth -> {
-////            var token = auth.getHttpHeaders().get("socket-token");
-////            if (!token.isEmpty()) {
-////                var username = jwtService.extractUsername(token, TokenType.ACCESS_TOKEN);
-////                var account = userDetailsService.loadUserByUsername(username);
-////                jwtService.validateToken(token, account, TokenType.ACCESS_TOKEN);
-////                return new AuthorizationResult(true);
-////            }
-////
-////            return new AuthorizationResult(true);
-////        });
-//
-//        server = new SocketIOServer(config);
-//        server.start();
-//
-//        server.addConnectListener(client -> log.info("Client connected: {}", client.getSessionId()));
-//        server.addDisconnectListener(client -> log.info("Client disconnected: {}", client.getSessionId()));
-//
-//        return server;
-//    }
-//
-//
-//    /**
-//     * Stops the Socket.IO server gracefully when the application is shutting down.
-//     */
-//    @PreDestroy
-//    public void stopSocketServer() {
-//        this.server.stop();
-//    }
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
-    private Socket socket;
+    // I have set the configuration values in application.yaml file
+    @Value("${socket.host}")
+    private String socketHost;
 
+    @Value("${socket.port}")
+    private int socketPort;
+
+    // SocketIOServer class is used to create a socket server
+    private SocketIOServer server;
+
+    /**
+     * Creates and configures a SocketIOServer bean.
+     *
+     * <p>This method sets up the server hostname and port,
+     * configures the authorization logic for incoming connections,
+     * and starts the server. It also adds listeners for client connection
+     * and disconnection events, logging relevant information.</p>
+     *
+     * @return the configured SocketIOServer instance
+     */
     @Bean
-    public Socket socketIOServer() {
-        try {
-            // Kết nối đến server Socket.IO với HTTPS
-            socket = IO.socket("https://socketio:8081"); // Sử dụng HTTPS
-            socket.on(Socket.EVENT_CONNECT, obj -> {
-                log.info("Connected to Socket.IO server");
-            });
-            socket.connect();
-        } catch (URISyntaxException e) {
-            log.error("Error connecting to Socket.IO server: {}", e.getMessage());
+    public SocketIOServer socketIOServer() {
+        // Configuration object holds the server settings
+        Configuration config = new Configuration();
+
+        config.setHostname(socketHost);
+        config.setPort(socketPort);
+        try (InputStream keyStoreInputStream = new ClassPathResource("keystore.p12").getInputStream()) {
+            config.setKeyStore(keyStoreInputStream);
+            config.setKeyStorePassword("123123");
+            config.setKeyStoreFormat("PKCS12");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        return socket; // Trả về đối tượng Socket
+
+//        config.setAuthorizationListener(auth -> {
+//            var token = auth.getHttpHeaders().get("socket-token");
+//            if (!token.isEmpty()) {
+//                var username = jwtService.extractUsername(token, TokenType.ACCESS_TOKEN);
+//                var account = userDetailsService.loadUserByUsername(username);
+//                jwtService.validateToken(token, account, TokenType.ACCESS_TOKEN);
+//                return new AuthorizationResult(true);
+//            }
+//
+//            return new AuthorizationResult(true);
+//        });
+
+        server = new SocketIOServer(config);
+        server.start();
+
+        server.addConnectListener(client -> log.info("Client connected: {}", client.getSessionId()));
+        server.addDisconnectListener(client -> log.info("Client disconnected: {}", client.getSessionId()));
+
+        return server;
     }
 
-    public Socket getSocket() {
-        return socket; // Getter để truy cập socket từ nơi khác trong ứng dụng
-    }
 
+    /**
+     * Stops the Socket.IO server gracefully when the application is shutting down.
+     */
     @PreDestroy
-    public void disconnect() {
-        if (socket != null) {
-            socket.disconnect();
-            log.info("Disconnected from Socket.IO server");
-        }
+    public void stopSocketServer() {
+        this.server.stop();
     }
 }
