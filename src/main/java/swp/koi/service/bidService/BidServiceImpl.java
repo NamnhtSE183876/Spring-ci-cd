@@ -98,7 +98,7 @@ public class BidServiceImpl implements BidService {
             lot = updateLotWithSpecialType(bidRequestDto.getPrice(), lot, member);
         }
 
-        updateDataOnClient(lot.getLotId(),bidRequestDto.getPrice(),account.getFirstName());
+//        updateDataOnClient(lot.getLotId(),bidRequestDto.getPrice(),account.getFirstName());
 
         lotRepository.save(lot);
     }
