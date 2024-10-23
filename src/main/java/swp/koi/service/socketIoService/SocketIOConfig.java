@@ -110,7 +110,7 @@ public class SocketIOConfig {
     public void init() {
         try {
             // Replace with the correct URL of your Socket.IO server
-            socket = IO.socket("https://socketio-server:8081"); // e.g., "https://54.255.138.0:8081"
+            socket = IO.socket("https://54.255.138.0:8081"); // e.g., "https://54.255.138.0:8081"
             socket.connect();
 
             // Listen for events
