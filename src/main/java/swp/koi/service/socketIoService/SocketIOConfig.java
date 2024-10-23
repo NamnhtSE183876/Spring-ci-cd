@@ -105,18 +105,26 @@ public class SocketIOConfig implements CommandLineRunner {
 //    public void stopSocketServer() {
 //        this.server.stop();
 //    }
+
     private static final String SOCKET_IO_URL = "https://54.255.138.0:8081";
+
     private Socket socket;
 
-    @Bean
-    public Socket socket() throws URISyntaxException {
+    // Constructor injection for the Socket instance
+    public Socket SocketIoConfig() throws URISyntaxException {
         this.socket = IO.socket(SOCKET_IO_URL);
         return this.socket;
     }
 
+    @Bean
+    public Socket socket() {
+        return socket;
+    }
+
     @Override
     public void run(String... args) throws Exception {
-        socket.on(Socket.EVENT_CONNECT, obj -> {
+        // Log when connected to the Socket.IO server
+        socket.on(Socket.EVENT_CONNECT, data -> {
             System.out.println("Connected to Socket.IO server.");
             // Emit a message or perform other actions here if needed
             socket.emit("event_name", "data");
@@ -125,14 +133,24 @@ public class SocketIOConfig implements CommandLineRunner {
             // Handle the received data
         });
 
+        // Log when there's a connection error
+        socket.on(Socket.EVENT_CONNECT_ERROR, errorArgs -> {
+            System.err.println("Connection error: " + errorArgs[0]);
+        });
+
+        // Log when disconnected from the server
+        socket.on(Socket.EVENT_DISCONNECT, disconnectArgs -> {
+            System.out.println("Disconnected from Socket.IO server. Reason: " + disconnectArgs[0]);
+        });
+
+        // Start the connection
         socket.connect();
     }
 
     @PreDestroy
     public void cleanup() {
-        if (socket != null) {
-            socket.disconnect();
-            System.out.println("Disconnected from Socket.IO server.");
-        }
+        socket.disconnect();
+        System.out.println("Disconnected from Socket.IO server.");
     }
+
 }
