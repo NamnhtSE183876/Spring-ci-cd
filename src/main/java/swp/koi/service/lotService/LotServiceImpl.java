@@ -72,7 +72,7 @@ public class LotServiceImpl implements LotService {
         updateAuctionStatus(lot.getAuction(), AuctionStatusEnum.AUCTIONING);
         lot.setStatus(LotStatusEnum.AUCTIONING);
         //setup a socket event for real-time communicate
-        createSocketForLot(socketServer, lot);
+//        createSocketForLot(socketServer, lot);
         lotRepository.save(lot);
     }
 
@@ -86,20 +86,20 @@ public class LotServiceImpl implements LotService {
             concludeLot(lot, bidList);
         }
         //real time update - remind me to delete this
-        notifyClient(lot);
+//        notifyClient(lot);
         //send push notification to user who followed this lot
         sendNotificateToFollower(lot);
 
     }
 
-    private void notifyClient(Lot lot) {
-        SocketDetail socketDetail = SocketDetail.builder()
-                .lotId(lot.getLotId())
-                .newPrice(lot.getCurrentPrice())
-                .build();
-
-        eventListenerFactory.sendDataToClient(socketDetail,lot.getLotId().toString());
-    }
+//    private void notifyClient(Lot lot) {
+//        SocketDetail socketDetail = SocketDetail.builder()
+//                .lotId(lot.getLotId())
+//                .newPrice(lot.getCurrentPrice())
+//                .build();
+//
+//        eventListenerFactory.sendDataToClient(socketDetail,lot.getLotId().toString());
+//    }
 
     private void decreasePrice(Lot lot) {
 
@@ -203,9 +203,9 @@ public class LotServiceImpl implements LotService {
         return bidList.getFirst();
     }
 
-    private void createSocketForLot(SocketIOServer socketIOServer, Lot lot) {
-        eventListenerFactory.createDataListener(socketIOServer,lot.getLotId().toString());
-    }
+//    private void createSocketForLot(SocketIOServer socketIOServer, Lot lot) {
+//        eventListenerFactory.createDataListener(socketIOServer,lot.getLotId().toString());
+//    }
 
     @Async
     @Override
