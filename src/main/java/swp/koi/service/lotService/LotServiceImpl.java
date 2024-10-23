@@ -37,7 +37,7 @@ public class LotServiceImpl implements LotService {
     private final MemberRepository memberRepository;
     private final InvoiceRepository invoiceRepository;
     private final EventListenerFactoryImpl eventListenerFactory;
-    private final SocketIOServer socketServer;
+//    private final SocketIOServer socketServer;
     private final RedisServiceImpl redisServiceImpl;
     private final FCMService fcmService;
     private final InvoiceService invoiceService;
