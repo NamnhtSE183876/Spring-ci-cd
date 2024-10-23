@@ -16,7 +16,7 @@ public class SocketClient {
     @PostConstruct
     public void init() {
         try {
-            socket = IO.socket("https://54.255.138.0:8081");
+            socket = IO.socket("http://54.255.138.0:8081");
             socket.on("message", onNewMessage);
             socket.connect();
 
