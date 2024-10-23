@@ -1,7 +1,6 @@
 package swp.koi.service.socketIoService;
 
 import com.corundumstudio.socketio.AuthorizationResult;
-import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOServer;
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -9,7 +8,9 @@ import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -31,10 +32,11 @@ import java.net.URISyntaxException;
  * <p>This class also contains methods for handling client connection events
  * and stopping the server gracefully on application shutdown.</p>
  */
-@Component
+
 @RequiredArgsConstructor
 @Slf4j
-public class SocketIOConfig {
+@Configuration
+public class SocketIOConfig implements CommandLineRunner {
 
 //    private final JwtService jwtService;
 //    private final UserDetailsService userDetailsService;
@@ -103,5 +105,34 @@ public class SocketIOConfig {
 //    public void stopSocketServer() {
 //        this.server.stop();
 //    }
+    private static final String SOCKET_IO_URL = "https://54.255.138.0:8081";
+    private Socket socket;
 
+    @Bean
+    public Socket socket() throws URISyntaxException {
+        this.socket = IO.socket(SOCKET_IO_URL);
+        return this.socket;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        socket.on(Socket.EVENT_CONNECT, obj -> {
+            System.out.println("Connected to Socket.IO server.");
+            // Emit a message or perform other actions here if needed
+            socket.emit("event_name", "data");
+        }).on("your_event_name", data -> {
+            System.out.println("Received data: " + data[0]);
+            // Handle the received data
+        });
+
+        socket.connect();
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        if (socket != null) {
+            socket.disconnect();
+            System.out.println("Disconnected from Socket.IO server.");
+        }
+    }
 }
