@@ -30,7 +30,7 @@
 <script>
     const socketToken = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtb25sYWkxQGdtYWlsLmNvbSIsImlhdCI6MTcyODQ1MjI5OCwiZXhwIjoxNzI4NTM4Njk4fQ.XOHIPM-Om086ibdEp0JNbu7zAiHh0PYg3uMSS_RIsL_Hxg7i2ePFmj4yDOrhcF6zyJmLvBubIahENEaQYNuHwg';
 
-    const socket = io('https://54.169.209.196:4000', {
+    const socket = io('http://localhost:8081', {
         headers: {
             'socket-token': socketToken
         }
