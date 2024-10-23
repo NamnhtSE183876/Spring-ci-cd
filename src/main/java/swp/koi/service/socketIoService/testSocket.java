@@ -11,16 +11,10 @@ import org.springframework.web.bind.annotation.*;
 public class testSocket {
 
 //    private final EventListenerFactoryImpl eventListenerFactory;
-    private final SocketClient socketClient;
 
 //    @GetMapping("/create")
 //    public void createSocketIo(@RequestParam String port) {
 //        eventListenerFactory.createDataListener(socketIOServer,port);
 //    }
 
-    @PostMapping("/send")
-    public String sendMessage(@RequestBody String message) {
-        socketClient.getSocket().emit("message", message);
-        return "Message sent: " + message;
-    }
 }
