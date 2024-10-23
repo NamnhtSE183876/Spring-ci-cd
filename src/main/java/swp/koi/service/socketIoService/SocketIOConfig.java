@@ -110,22 +110,50 @@ public class SocketIOConfig {
     public void init() {
         try {
             // Replace with the correct URL of your Socket.IO server
-            socket = IO.socket("https://54.255.138.0:8081"); // e.g., "https://54.255.138.0:8081"
-            socket.connect();
+            socket = IO.socket("https://54.255.138.0:8081");
 
-            // Listen for events
+            // Listen for connection event
+            socket.on(Socket.EVENT_CONNECT, args -> {
+                System.out.println("Connected to Socket.IO server!");
+            });
+
+            // Listen for incoming messages
             socket.on("message", args -> {
                 String message = (String) args[0];
                 System.out.println("Received message: " + message);
             });
+
+            // Listen for disconnect event
+            socket.on(Socket.EVENT_DISCONNECT, args -> {
+                System.out.println("Disconnected from Socket.IO server.");
+            });
+
+            // Listen for error events
+            socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
+                System.err.println("Socket error: " + args[0]);
+            });
+
+            // Connect to the Socket.IO server
+            socket.connect();
         } catch (URISyntaxException e) {
             e.printStackTrace();
+        }
+    }
+
+    @PreDestroy
+    public void cleanup() {
+        if (socket != null) {
+            socket.disconnect();
+            socket.off(); // Remove all listeners
         }
     }
 
     public void sendMessage(String message) {
         if (socket != null && socket.connected()) {
             socket.emit("message", message);
+            System.out.println("Sent message: " + message);
+        } else {
+            System.out.println("Socket not connected.");
         }
     }
 }
