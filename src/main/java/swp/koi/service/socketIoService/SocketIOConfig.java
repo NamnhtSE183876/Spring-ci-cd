@@ -109,36 +109,31 @@ public class SocketIOConfig {
     @PostConstruct
     public void init() {
         try {
-            // Replace with the correct URL of your Socket.IO server
             socket = IO.socket("https://54.255.138.0:8081");
 
-            // Listen for connection event
             socket.on(Socket.EVENT_CONNECT, args -> {
                 System.out.println("Connected to Socket.IO server!");
             });
 
-            // Listen for incoming messages
             socket.on("message", args -> {
                 String message = (String) args[0];
                 System.out.println("Received message: " + message);
             });
 
-            // Listen for disconnect event
             socket.on(Socket.EVENT_DISCONNECT, args -> {
                 System.out.println("Disconnected from Socket.IO server.");
             });
 
-            // Listen for error events
             socket.on(Socket.EVENT_CONNECT_ERROR, args -> {
                 System.err.println("Socket error: " + args[0]);
             });
 
-            // Connect to the Socket.IO server
             socket.connect();
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
     }
+
 
     @PreDestroy
     public void cleanup() {
