@@ -16,11 +16,10 @@ public class SocketClient {
     @PostConstruct
     public void init() {
         try {
-            socket = IO.socket("http://54.255.138.0:8081");
-            socket.on("message", onNewMessage);
-            socket.connect();
+            System.out.println("Attempting to connect to Socket.IO server...");
+            socket = IO.socket("https://54.255.138.0:8081");
 
-            // Kiểm tra kết nối
+            // Log khi sự kiện connect xảy ra
             socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
@@ -28,7 +27,7 @@ public class SocketClient {
                 }
             });
 
-            // Xử lý ngắt kết nối
+            // Log khi có sự kiện disconnect
             socket.on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
@@ -36,10 +35,21 @@ public class SocketClient {
                 }
             });
 
+            // Log khi có lỗi kết nối
+            socket.on(Socket.EVENT_CONNECT_ERROR, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    System.out.println("Connection error: " + args[0]);
+                }
+            });
+
+            // Kết nối đến server
+            socket.connect();
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            System.err.println("Invalid URI: " + e.getMessage());
         }
     }
+
 
     public Socket getSocket() {
         return socket;
