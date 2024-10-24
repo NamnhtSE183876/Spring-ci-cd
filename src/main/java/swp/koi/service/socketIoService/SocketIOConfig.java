@@ -6,6 +6,7 @@ import com.corundumstudio.socketio.SocketIOServer;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.apache.bcel.util.ClassPath;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ClassPathResource;
@@ -60,14 +61,17 @@ public class SocketIOConfig {
 
         config.setHostname(socketHost);
         config.setPort(socketPort);
-        config.setSSLProtocol("TLSv1.2");
 
-        try (InputStream keyStoreInputStream = new ClassPathResource("keystore.p12").getInputStream()) {
-            config.setKeyStore(keyStoreInputStream);
-            config.setKeyStorePassword("123123");
-            config.setKeyStoreFormat("PKCS12");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        config.setKeyStorePassword("123123");
+        try {
+            InputStream stream = getClass().getClassLoader().getResourceAsStream("keystore.p12");
+            if (stream == null) {
+                throw new IllegalArgumentException("Keystore not found");
+            }
+            config.setKeyStore(stream);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to set up keystore", e);
         }
 
 //        config.setAuthorizationListener(auth -> {
