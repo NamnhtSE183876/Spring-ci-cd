@@ -63,6 +63,7 @@ public class SocketIOConfig {
         config.setPort(socketPort);
 
         config.setKeyStorePassword("123123");
+        config.setSSLProtocol("TLS");
         try {
             InputStream stream = getClass().getClassLoader().getResourceAsStream("keystore.p12");
             if (stream == null) {
