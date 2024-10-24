@@ -47,6 +47,7 @@ public class SSLTrust {
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
 
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | KeyManagementException e) {
+            System.err.println("SSL setup failed: " + e.getMessage());
             e.printStackTrace();
         }
     }
