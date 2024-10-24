@@ -62,9 +62,9 @@ public class SocketIOConfig {
         config.setHostname(socketHost);
         config.setPort(socketPort);
 
-        SSLTrust sslTrust = new SSLTrust("/keystore.p12", "123123", "https://prestigekoiauction.freeddns.org");
-        int responseCode = sslTrust.sendGetRequest();
-        System.out.println(responseCode);
+        InputStream stream = getClass().getResourceAsStream("/keystore.p12");
+        config.setKeyStore(stream);
+        config.setKeyStorePassword("123123");
 
 //        config.setAuthorizationListener(auth -> {
 //            var token = auth.getHttpHeaders().get("socket-token");
