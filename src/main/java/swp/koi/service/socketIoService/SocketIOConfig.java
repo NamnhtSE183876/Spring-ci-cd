@@ -60,6 +60,7 @@ public class SocketIOConfig {
 
         config.setHostname(socketHost);
         config.setPort(socketPort);
+        config.setSSLProtocol("TLSv1.2");
 
         try (InputStream keyStoreInputStream = new ClassPathResource("keystore.p12").getInputStream()) {
             config.setKeyStore(keyStoreInputStream);
