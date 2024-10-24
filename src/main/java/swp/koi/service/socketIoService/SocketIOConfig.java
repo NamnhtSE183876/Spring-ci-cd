@@ -62,18 +62,9 @@ public class SocketIOConfig {
         config.setHostname(socketHost);
         config.setPort(socketPort);
 
-        config.setKeyStorePassword("123123");
-        config.setSSLProtocol("TLS");
-        try {
-            InputStream stream = getClass().getClassLoader().getResourceAsStream("keystore.p12");
-            if (stream == null) {
-                throw new IllegalArgumentException("Keystore not found");
-            }
-            config.setKeyStore(stream);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to set up keystore", e);
-        }
+        SSLTrust sslTrust = new SSLTrust("/keystore.p12", "123123", "https://prestigekoiauction.freeddns.org");
+        int responseCode = sslTrust.sendGetRequest();
+        System.out.println(responseCode);
 
 //        config.setAuthorizationListener(auth -> {
 //            var token = auth.getHttpHeaders().get("socket-token");
