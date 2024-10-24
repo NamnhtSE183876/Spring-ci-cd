@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/test")
 public class testSocket {
 
-//    private final EventListenerFactoryImpl eventListenerFactory;
+    private final EventListenerFactoryImpl eventListenerFactory;
 
 //    @GetMapping("/create")
 //    public void createSocketIo(@RequestParam String port) {
-//        eventListenerFactory.createDataListener(socketIOServer,port);
+//        eventListenerFactory.createDataListener(socketIOServer, port);
 //    }
 
 }

@@ -37,26 +37,26 @@ pipeline {
             }
         }
 
-//         stage('Deploy SQL Server') {
-//             steps {
-//                 echo 'Deploying SQL Server and cleaning'
-//                 // Kéo image SQL Server
-//                 sh 'docker pull mcr.microsoft.com/mssql/server:2019-latest'
-//                 // Tạo mạng Docker nếu chưa tồn tại
-//                 sh 'docker network create dev || echo "This network already exists"'
-//                 // Dừng và xóa container SQL Server nếu đã tồn tại
-//                 sh 'docker stop mssql || true'
-//                 sh 'docker rm mssql || true'
-//                 // Chạy container SQL Server mới
-//                 sh """
-//                 docker run -d --name mssql --network dev \
-//                 -e ACCEPT_EULA=Y \
-//                 -e SA_PASSWORD=$DB_PASSWORD \
-//                 -p 1433:1433 \
-//                 mcr.microsoft.com/mssql/server:2019-latest
-//                 """
-//             }
-//         }
+        stage('Deploy SQL Server') {
+            steps {
+                echo 'Deploying SQL Server and cleaning'
+                // Kéo image SQL Server
+                sh 'docker pull mcr.microsoft.com/mssql/server:2019-latest'
+                // Tạo mạng Docker nếu chưa tồn tại
+                sh 'docker network create dev || echo "This network already exists"'
+                // Dừng và xóa container SQL Server nếu đã tồn tại
+                sh 'docker stop mssql || true'
+                sh 'docker rm mssql || true'
+                // Chạy container SQL Server mới
+                sh """
+                docker run -d --name mssql --network dev \
+                -e ACCEPT_EULA=Y \
+                -e SA_PASSWORD=$DB_PASSWORD \
+                -p 1433:1433 \
+                mcr.microsoft.com/mssql/server:2019-latest
+                """
+            }
+        }
 
         stage('Deploy Redis') {
                     steps {
@@ -77,25 +77,6 @@ pipeline {
                     }
                 }
 
-        stage('Pull and Run Socket.IO Server') {
-            steps {
-                echo 'Pulling and running Socket.IO server...'
-                        // Pull the latest Socket.IO server image
-                        sh 'docker pull lagux/socketio-server:latest'
-
-                        // Stop and remove any existing Socket.IO server container
-                        sh 'docker stop socketio-server || true'
-                        sh 'docker rm socketio-server || true'
-
-                        // Run the new Socket.IO server container
-                        sh """
-                        docker run -d --name socketio-server --network dev \
-                            -p 8081:8081 \
-                            lagux/socketio-server:latest
-                        """
-                        echo 'Socket.IO server deployed successfully.'
-            }
-        }
 
         stage('Deploy Application') {
             steps {
@@ -124,7 +105,7 @@ pipeline {
                         -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
                         -e FIREBASE_FILE="/app/config/firebase.json" \
                         --mount type=bind,source="${FIREBASE_FILE_PATH}",target=/app/config/firebase.json \
-                        -p 8443:8443 lagux/springboot
+                        -p 8443:8443 -p 8081:8081 lagux/springboot
                     """
                 }
             }

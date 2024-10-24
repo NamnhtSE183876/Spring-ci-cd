@@ -111,17 +111,17 @@ public class BidServiceImpl implements BidService {
      * @param bidderName the name of the bidder
      * @throws KoiException if any errors occur during the update
      */
-//    private void updateDataOnClient(int lotId, float amount, String bidderName) throws KoiException {
-//
-//        SocketDetail socketDetail = SocketDetail.builder()
-//                .winnerName(bidderName)
-//                .newPrice(amount)
-//                .lotId(lotId)
-//                .build();
-//
-//        socketService.sendDataToClient(socketDetail, String.valueOf(lotId));
-//
-//    }
+    private void updateDataOnClient(int lotId, float amount, String bidderName) throws KoiException {
+
+        SocketDetail socketDetail = SocketDetail.builder()
+                .winnerName(bidderName)
+                .newPrice(amount)
+                .lotId(lotId)
+                .build();
+
+        socketService.sendDataToClient(socketDetail, String.valueOf(lotId));
+
+    }
 
     /**
      * Lists all bids associated with a given lot ID.

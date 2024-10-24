@@ -37,7 +37,7 @@ public class LotServiceImpl implements LotService {
     private final MemberRepository memberRepository;
     private final InvoiceRepository invoiceRepository;
     private final EventListenerFactoryImpl eventListenerFactory;
-//    private final SocketIOServer socketServer;
+    private final SocketIOServer socketServer;
     private final RedisServiceImpl redisServiceImpl;
     private final FCMService fcmService;
     private final InvoiceService invoiceService;
@@ -92,14 +92,14 @@ public class LotServiceImpl implements LotService {
 
     }
 
-//    private void notifyClient(Lot lot) {
-//        SocketDetail socketDetail = SocketDetail.builder()
-//                .lotId(lot.getLotId())
-//                .newPrice(lot.getCurrentPrice())
-//                .build();
-//
-//        eventListenerFactory.sendDataToClient(socketDetail,lot.getLotId().toString());
-//    }
+    private void notifyClient(Lot lot) {
+        SocketDetail socketDetail = SocketDetail.builder()
+                .lotId(lot.getLotId())
+                .newPrice(lot.getCurrentPrice())
+                .build();
+
+        eventListenerFactory.sendDataToClient(socketDetail,lot.getLotId().toString());
+    }
 
     private void decreasePrice(Lot lot) {
 
@@ -203,9 +203,9 @@ public class LotServiceImpl implements LotService {
         return bidList.getFirst();
     }
 
-//    private void createSocketForLot(SocketIOServer socketIOServer, Lot lot) {
-//        eventListenerFactory.createDataListener(socketIOServer,lot.getLotId().toString());
-//    }
+    private void createSocketForLot(SocketIOServer socketIOServer, Lot lot) {
+        eventListenerFactory.createDataListener(socketIOServer,lot.getLotId().toString());
+    }
 
     @Async
     @Override
