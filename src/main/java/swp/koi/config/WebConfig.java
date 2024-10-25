@@ -15,7 +15,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://koi-auction-lagux.netlify.app", "https://front-end-beta-six.vercel.app/", "http://localhost:63342/") // Specifies the allowed origin
+                        .allowedOrigins("https://koi-auction-lagux.netlify.app", "https://front-end-beta-six.vercel.app/", "http://localhost:63342/", "https://prestigekoiauction.netlify.app") // Specifies the allowed origin
                         .allowedMethods("GET", "POST", "PUT", "PATCH","DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT")
                         .allowedHeaders("*")
                         .allowCredentials(true);// Specifies allowed HTTP methods
