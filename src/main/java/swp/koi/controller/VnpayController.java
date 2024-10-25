@@ -29,7 +29,7 @@ public class VnpayController {
         if (isResponseValid) {
             vnpayService.regisMemberToLot(request);
 //            return new ResponseEntity<>("Payment successful",HttpStatus.OK);
-            URI redirectUri = URI.create("https://https://prestigekoiauction.netlify.app/deposit-success");
+            URI redirectUri = URI.create("https://prestigekoiauction.netlify.app/deposit-success");
             return ResponseEntity.status(HttpStatus.FOUND).location(redirectUri).build();
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Something went wrong with this response");
