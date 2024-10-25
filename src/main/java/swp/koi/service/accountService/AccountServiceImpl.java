@@ -291,7 +291,7 @@ public class AccountServiceImpl implements AccountService{
 
         // Send email confirm link
 
-        String confirmLink = "https://koi-auction-lagux.netlify.app/reset-password?reset_token=" + reset_token;
+        String confirmLink = "http://localhost:5174/reset-password?reset_token=" + reset_token;
 
         emailService.sendEmail(request.getEmail(), "Reset Password", emailContent.createEmailResetPassword(account.getFirstName(), confirmLink));
 

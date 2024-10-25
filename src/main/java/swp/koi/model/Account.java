@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import swp.koi.model.enums.AccountRoleEnum;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +54,18 @@ public class Account {
     List<AuctionRequest> auctionRequest;
 
     @OneToMany(mappedBy = "account")
+    List<KoiFish> koiFishes;
+
+    @OneToMany(mappedBy = "account")
     List<Invoice> invoices;
+
+    @Column(name = "createAt", updatable = false)
+    LocalDateTime createAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createAt = LocalDateTime.now();
+    }
 
     public Account() {
     }

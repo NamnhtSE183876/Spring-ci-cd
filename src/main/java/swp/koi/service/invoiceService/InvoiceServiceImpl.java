@@ -3,7 +3,6 @@ package swp.koi.service.invoiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import swp.koi.dto.response.InvoiceResponseDto;
 import swp.koi.dto.response.ResponseCode;
 import swp.koi.exception.KoiException;
 import swp.koi.model.Account;
@@ -17,8 +16,6 @@ import swp.koi.repository.InvoiceRepository;
 import swp.koi.repository.LotRepository;
 import swp.koi.service.accountService.AccountService;
 import swp.koi.service.authService.GetUserInfoByUsingAuth;
-import swp.koi.service.lotService.LotService;
-import swp.koi.service.lotService.LotServiceImpl;
 import swp.koi.service.memberService.MemberService;
 import swp.koi.service.vnPayService.VnpayServiceImpl;
 
@@ -41,6 +38,7 @@ public class InvoiceServiceImpl implements InvoiceService{
     private final MemberService memberService;
     private final AccountService accountService;
 
+
     @Override
     public Invoice createInvoiceForAuctionWinner(int lotId, int memberId) {
         Lot lot = lotRepository.findById(lotId).orElseThrow(() -> new KoiException(ResponseCode.LOT_NOT_FOUND));
@@ -56,7 +54,9 @@ public class InvoiceServiceImpl implements InvoiceService{
                 .koiFish(lot.getKoiFish())
                 .status(InvoiceStatusEnums.PENDING)
                 .finalAmount((float) (lot.getCurrentPrice() * 1.1 - lot.getDeposit()))
+                .priceWithoutShipFee((float) (lot.getCurrentPrice() * 1.1 - lot.getDeposit()))
                 .member(member)
+                .account(member.getAccount())
                 .build();
     }
 
@@ -107,19 +107,27 @@ public class InvoiceServiceImpl implements InvoiceService{
     }
 
     @Override
-    public Invoice updateInvoiceAddress(double kilometer, int invoiceId, String address){
-
+    public Invoice updateInvoiceAddress(double kilometer, int invoiceId, String address) throws UnsupportedEncodingException {
+        Member member = getUserInfoByUsingAuth.getMemberFromAuth();
         Invoice invoice = invoiceRepository.findById(invoiceId).orElseThrow(() -> new KoiException(ResponseCode.LOT_NOT_FOUND));
 
         invoice.setAddress(address);
         invoice.setKilometers(kilometer);
 
-        float currentPrice = invoice.getFinalAmount();
+        float currentPrice = invoice.getPriceWithoutShipFee();
         float newPriceWithAddress = generateShippingPriceForInvoice(kilometer);
         float newPrice = currentPrice + newPriceWithAddress;
 
+
         invoice.setFinalAmount(newPrice);
+        invoiceRepository.save(invoice);
+        String paymentLink = generatePaymentLink(invoice.getLot().getLotId(), member.getMemberId());
+        invoice.setPaymentLink(paymentLink);
         return invoiceRepository.save(invoice);
+    }
+
+    private String generatePaymentLink(int lotId, int memberId) throws UnsupportedEncodingException {
+        return vnpayService.generateInvoice(lotId, memberId, TransactionTypeEnum.INVOICE_PAYMENT);
     }
 
     private float generateShippingPriceForInvoice(double kilometer) {
@@ -139,7 +147,7 @@ public class InvoiceServiceImpl implements InvoiceService{
         } else if (kilometer > 200) {
             pricePerKm = 800;
         } else {
-            throw new IllegalStateException("Kilometers must greater than 0"); // Invalid distance
+           return 0; // Invalid distance
         }
         
         return pricePerKm;
@@ -175,6 +183,17 @@ public class InvoiceServiceImpl implements InvoiceService{
             throw  new KoiException(ResponseCode.STAFF_NOT_FOUND);
 
         return invoiceRepository.findAllByAccountAndStatus(account, InvoiceStatusEnums.DELIVERY_IN_PROGRESS);
+    }
+
+    @Override
+    public List<Invoice> listOfInvoices(){
+        List<InvoiceStatusEnums> statues = Arrays.asList(
+                InvoiceStatusEnums.DELIVERY_IN_PROGRESS,
+                InvoiceStatusEnums.DELIVERED,
+                InvoiceStatusEnums.CANCELLED,
+                InvoiceStatusEnums.FAILED
+        );
+        return invoiceRepository.findAllByStatusIn(statues);
     }
 
     @Override

@@ -6,16 +6,13 @@ import com.corundumstudio.socketio.SocketIOServer;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.apache.bcel.util.ClassPath;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import swp.koi.model.enums.TokenType;
 import swp.koi.service.jwtService.JwtService;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**

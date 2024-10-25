@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.cglib.core.Local;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import swp.koi.convert.LotEntityToDtoConverter;
@@ -40,6 +41,7 @@ public class AuctionServiceImpl implements AuctionService{
     private final LotEntityToDtoConverter lotEntityToDtoConverter;
 
     @Override
+    @Async
     @Scheduled(fixedDelay = 1000 * 60)
     public void updateAuctionStatusAndEndTime(){
         List<Auction> auctions = auctionRepository.findAllByStatus(AuctionStatusEnum.AUCTIONING);
@@ -96,7 +98,7 @@ public class AuctionServiceImpl implements AuctionService{
             for(LotDTO lotDTO : request.getLots()){
                 Lot lot = new Lot();
                 KoiFish koiFish = koiFishService.findByFishId(lotDTO.getFishId());
-                koiFish.setStatus(KoiFishStatusEnum.AUCTIONING);
+                koiFish.setStatus(KoiFishStatusEnum.IN_AUCTION);
                 koiFishService.saveFish(koiFish);
                     lot.setAuction(auction);
                     lot.setKoiFish(koiFish);
@@ -188,5 +190,10 @@ public class AuctionServiceImpl implements AuctionService{
     @Override
     public List<Auction> getAllCompletedAuction() {
         return auctionRepository.findAllByStatus(AuctionStatusEnum.COMPLETED);
+    }
+
+    @Override
+    public List<Auction> getAllWaitingAuction() {
+        return auctionRepository.findAllByStatus(AuctionStatusEnum.WAITING);
     }
 }

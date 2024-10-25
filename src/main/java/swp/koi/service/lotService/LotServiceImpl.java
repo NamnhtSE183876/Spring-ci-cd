@@ -10,6 +10,7 @@ import swp.koi.exception.KoiException;
 import swp.koi.model.*;
 import swp.koi.model.enums.*;
 import swp.koi.repository.*;
+import swp.koi.service.accountService.AccountService;
 import swp.koi.service.bidService.BidServiceImpl;
 import swp.koi.service.fireBase.FCMService;
 import swp.koi.service.invoiceService.InvoiceService;
@@ -18,7 +19,6 @@ import swp.koi.service.socketIoService.EventListenerFactoryImpl;
 import swp.koi.service.socketIoService.SocketDetail;
 import swp.koi.service.vnPayService.VnpayServiceImpl;
 
-import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LotServiceImpl implements LotService {
 
+    private final AccountService accountService;
     private final LotRepository lotRepository;
     private final BidServiceImpl bidService;
     private final LotRegisterRepository lotRegisterRepository;
@@ -72,7 +73,7 @@ public class LotServiceImpl implements LotService {
         updateAuctionStatus(lot.getAuction(), AuctionStatusEnum.AUCTIONING);
         lot.setStatus(LotStatusEnum.AUCTIONING);
         //setup a socket event for real-time communicate
-//        createSocketForLot(socketServer, lot);
+        createSocketForLot(socketServer, lot);
         lotRepository.save(lot);
     }
 
@@ -86,7 +87,7 @@ public class LotServiceImpl implements LotService {
             concludeLot(lot, bidList);
         }
         //real time update - remind me to delete this
-//        notifyClient(lot);
+        notifyClient(lot);
         //send push notification to user who followed this lot
         sendNotificateToFollower(lot);
 
@@ -138,7 +139,26 @@ public class LotServiceImpl implements LotService {
         updateLotRegisterStatus(lot, winningMember);
         markOtherBidsAsLost(lot, winningMember);
 
+        sendNotificateToFollower(lot);
+        sendNotificationToBidder(lot, winningBid);
+
         createInvoiceForLot(lot, winningMember);
+    }
+
+    @Async
+    protected void sendNotificationToBidder(Lot lot, Bid winningBid) {
+        Set<SubscribeRequest> subscribeRequests = (Set<SubscribeRequest>) redisServiceImpl.getSetData("Notify_"+lot.getLotId().toString());
+
+        if(subscribeRequests.isEmpty()) {
+            return;
+        }
+
+        subscribeRequests.stream()
+                .filter(request -> !request.getMemberId().equals(winningBid.getMember().getMemberId()))
+                .forEach( lr -> {
+                    String msgBody = "You have lost at lot " + lot.getLotId() + " of auction " + lot.getAuction().getAuctionId();
+                    fcmService.sendPushNotification("Bidding result of PrestigeKoi", msgBody, lr.getToken());
+                });
     }
 
     private void updateKoiFishStatus(KoiFish koiFish, KoiFishStatusEnum status) {
@@ -172,12 +192,6 @@ public class LotServiceImpl implements LotService {
     private void createInvoiceForLot(Lot lot, Member winner) {
         Invoice invoice = invoiceService.createInvoiceForAuctionWinner(lot.getLotId(), winner.getMemberId());
         invoiceRepository.save(invoice);
-    }
-
-
-
-    private String generatePaymentLink(int lotId, int memberId) throws UnsupportedEncodingException {
-        return vnpayService.generateInvoice(lotId, memberId, TransactionTypeEnum.INVOICE_PAYMENT);
     }
 
     private Bid chooseLotWinner(Lot lot, List<Bid> bidList) {
@@ -222,8 +236,9 @@ public class LotServiceImpl implements LotService {
     }
 
     @Override
-    public List<Lot> getLotByMember(Integer memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new KoiException(ResponseCode.MEMBER_NOT_FOUND));
+    public List<Lot> getLotByMember(Integer accountId) {
+        Account account = accountService.findById(accountId);
+        Member member = memberRepository.findByAccount(account);
 
         List<LotRegister> lotRegisters = lotRegisterRepository.findAllByMember(member);
         List<Lot> lots = lotRegisters.stream()
