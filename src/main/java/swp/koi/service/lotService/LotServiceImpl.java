@@ -11,6 +11,7 @@ import swp.koi.model.*;
 import swp.koi.model.enums.*;
 import swp.koi.repository.*;
 import swp.koi.service.accountService.AccountService;
+import swp.koi.service.auctionTypeService.AuctionTypeService;
 import swp.koi.service.bidService.BidServiceImpl;
 import swp.koi.service.fireBase.FCMService;
 import swp.koi.service.invoiceService.InvoiceService;
@@ -42,6 +43,7 @@ public class LotServiceImpl implements LotService {
     private final RedisServiceImpl redisServiceImpl;
     private final FCMService fcmService;
     private final InvoiceService invoiceService;
+    private final AuctionTypeService auctionTypeService;
 
     @Override
     public Lot findLotById(int id) {
@@ -51,7 +53,7 @@ public class LotServiceImpl implements LotService {
 
     @Override
     @Async
-    @Scheduled(fixedRate = 1000 * 60) // Run every 60 seconds
+    @Scheduled(fixedRate = 1000 * 20) // Run every 60 seconds
     public void startLotBy() {
         LocalDateTime now = LocalDateTime.now();
 
@@ -61,16 +63,24 @@ public class LotServiceImpl implements LotService {
         List<Lot> runningLots = lotRepository.findAllByStatusAndEndingTimeLessThan(LotStatusEnum.AUCTIONING, now);
         runningLots.forEach(this::endLot);
 
-        List<Lot> descendingLots = lotRepository.findAllByStatusAndAuctionAuctionTypeAuctionTypeName(LotStatusEnum.AUCTIONING, AuctionTypeNameEnum.DESCENDING_BID);
+        AuctionType auctionType = auctionTypeService.findByAuctionTypeName("DESCENDING_BID");
+        List<Lot> descendingLots = lotRepository.findAllByStatusAndAuctionType(LotStatusEnum.AUCTIONING, auctionType);
         descendingLots.forEach(this::decreasePrice);
 
+        System.out.println("--------------------------------------------Scanning--------------------------------------------");
     }
 
 
 
     private void startLot(Lot lot) {
         updateKoiFishStatus(lot.getKoiFish(), KoiFishStatusEnum.AUCTIONING);
-        updateAuctionStatus(lot.getAuction(), AuctionStatusEnum.AUCTIONING);
+
+        List<Lot> list = new ArrayList<>();
+        list.add(lot);
+
+        Auction auction = auctionRepository.findByLots(list);
+
+        updateAuctionStatus(auction, AuctionStatusEnum.AUCTIONING);
         lot.setStatus(LotStatusEnum.AUCTIONING);
         //setup a socket event for real-time communicate
         createSocketForLot(socketServer, lot);
@@ -122,7 +132,21 @@ public class LotServiceImpl implements LotService {
     private void setLotToPassed(Lot lot) {
         updateKoiFishStatus(lot.getKoiFish(), KoiFishStatusEnum.WAITING);
         lot.setStatus(LotStatusEnum.PASSED);
+        updateStatusForAllLotRegister(lot);
         lotRepository.save(lot);
+    }
+
+    private void updateStatusForAllLotRegister(Lot lot) {
+
+        List<LotRegister> lotRegisters = lotRegisterRepository.findAllByLot(lot).orElse(null);
+
+        if (lotRegisters != null && !lotRegisters.isEmpty()) {
+            lotRegisters.stream().forEach(lotRegister -> {
+                lotRegister.setStatus(LotRegisterStatusEnum.LOSE);
+                lotRegisterRepository.save(lotRegister);
+            });
+        }
+
     }
 
     private void concludeLot(Lot lot, List<Bid> bidList) {
@@ -152,7 +176,6 @@ public class LotServiceImpl implements LotService {
         if(subscribeRequests.isEmpty()) {
             return;
         }
-
         subscribeRequests.stream()
                 .filter(request -> !request.getMemberId().equals(winningBid.getMember().getMemberId()))
                 .forEach( lr -> {
@@ -179,7 +202,7 @@ public class LotServiceImpl implements LotService {
     }
 
     private void markOtherBidsAsLost(Lot lot, Member winner) {
-        lotRegisterRepository.findByLot(lot).ifPresent(lotRegisters -> {
+        lotRegisterRepository.findAllByLot(lot).ifPresent(lotRegisters -> {
             lotRegisters.stream()
                     .filter(lr -> !lr.getMember().getMemberId().equals(winner.getMemberId()))
                     .forEach(lr -> {
@@ -195,7 +218,8 @@ public class LotServiceImpl implements LotService {
     }
 
     private Bid chooseLotWinner(Lot lot, List<Bid> bidList) {
-        return switch (lot.getAuction().getAuctionType().getAuctionTypeName()) {
+
+        return switch (lot.getAuctionType().getAuctionTypeName()) {
             case FIXED_PRICE_SALE -> getFixedPriceWinner(bidList);
             case SEALED_BID, ASCENDING_BID -> getHighestBid(bidList);
             case DESCENDING_BID -> getFirstBid(bidList);
@@ -234,18 +258,4 @@ public class LotServiceImpl implements LotService {
             }
         }
     }
-
-    @Override
-    public List<Lot> getLotByMember(Integer accountId) {
-        Account account = accountService.findById(accountId);
-        Member member = memberRepository.findByAccount(account);
-
-        List<LotRegister> lotRegisters = lotRegisterRepository.findAllByMember(member);
-        List<Lot> lots = lotRegisters.stream()
-                .map(lot -> lot.getLot())
-                .collect(Collectors.toList());
-        return lots;
-    }
-
-
 }

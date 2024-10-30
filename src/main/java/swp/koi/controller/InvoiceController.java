@@ -34,7 +34,7 @@ public class InvoiceController {
         }
     }
 
-    @GetMapping("/get-invoices")
+    @GetMapping("/get-invoices-of-winner")
     public ResponseData<List<InvoiceResponseDto>> getAllInvoicesOfMember() {
         try {
             List<InvoiceResponseDto> response = invoiceEntityToDtoConverter.convertInvoiceList(invoiceService.getAllInvoicesForAuctionWinner());
@@ -42,6 +42,12 @@ public class InvoiceController {
         } catch (KoiException e) {
             throw new KoiException(ResponseCode.MEMBER_NOT_FOUND);
         }
+    }
+
+    @GetMapping("/get-invoices")
+    public ResponseData<List<InvoiceResponseDto>> getAllInvoices() {
+            List<InvoiceResponseDto> response = invoiceEntityToDtoConverter.convertInvoiceList(invoiceService.getAllInvoices());
+            return new ResponseData<>(ResponseCode.SUCCESS, response);
     }
 
     @Operation(summary = "Update invoice with shipping address and distance")
@@ -64,6 +70,17 @@ public class InvoiceController {
     public ResponseData<?> getInvoiceForSpecificLot(@RequestParam int lotId){
         try {
             InvoiceResponseDto response = invoiceEntityToDtoConverter.convertInvoiceDto(invoiceService.getInvoiceForSpecificLot(lotId));
+            return new ResponseData<>(ResponseCode.SUCCESS,response);
+        } catch (KoiException e) {
+            throw new KoiException(e.getResponseCode());
+        }
+    }
+
+    @Operation(summary = "List all invoices for manager")
+    @GetMapping("/manager/invoice-list")
+    public ResponseData<?> listAllInvoicesForManager(){
+        try {
+            List<InvoiceResponseDto> response = invoiceEntityToDtoConverter.convertInvoiceList(invoiceService.listAllInvoicesForManager());
             return new ResponseData<>(ResponseCode.SUCCESS,response);
         } catch (KoiException e) {
             throw new KoiException(e.getResponseCode());
@@ -97,4 +114,5 @@ public class InvoiceController {
         return new ResponseData<>(ResponseCode.SUCCESS_GET_LIST, response);
 
     }
+
 }

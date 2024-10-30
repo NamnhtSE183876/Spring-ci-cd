@@ -1,6 +1,7 @@
 package swp.koi.service.auctionRequestService;
 
 import swp.koi.dto.request.*;
+import swp.koi.exception.KoiException;
 import swp.koi.model.AuctionRequest;
 
 import java.util.List;
@@ -26,13 +27,9 @@ public interface AuctionRequestService {
 
     void changeStatus(Integer requestId, UpdateStatusDTO request);
 
-    void managerNegotiation(Integer requestId, AuctionRequestNegotiationManagerDTO request);
+    void negotiation(Integer requestId, AuctionRequestNegotiationDTO request) throws KoiException;
 
-    void acceptNegotiation(Integer requestId);
-
-    void sendReNegotiation(Integer requestId, KoiFishNegotiationDTO koiFishNegotiationDTO);
-
-    void managerAcceptNegotiation(Integer requestId);
+    void acceptNegotiation(Integer requestId) throws KoiException;
 
     void managerCancelRequest(Integer requestId);
 
@@ -40,19 +37,6 @@ public interface AuctionRequestService {
 
     AuctionRequest getRequestDetail(Integer requestId);
 
-    List<AuctionRequest> getAllPendingRequest(Integer accountId);
+    void completePaymentForBreeder(Integer requestAuctionId);
 
-    List<AuctionRequest> getAllInspectionPendingRequest(Integer accountId);
-
-    List<AuctionRequest> getAllInspectionPassedRequest(Integer accountId);
-
-    List<AuctionRequest> getAllInspectionFailedRequest(Integer accountId);
-
-    List<AuctionRequest> getAllNegotiatingRequest(Integer accountId);
-
-    List<AuctionRequest> getAllApprovedRequest(Integer accountId);
-
-    List<AuctionRequest> getAllRejectedRequest(Integer accountId);
-
-    List<AuctionRequest> getAllCancelledRequest(Integer accountId);
 }

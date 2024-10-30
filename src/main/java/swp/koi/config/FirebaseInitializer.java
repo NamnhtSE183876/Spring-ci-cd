@@ -1,4 +1,4 @@
-package swp.koi.service.fireBase;
+package swp.koi.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
@@ -13,15 +13,10 @@ import java.io.IOException;
 @Configuration
 public class FirebaseInitializer {
 
-    String firebaseFilePath = System.getenv("FIREBASE_FILE");
-
     @Bean
     public FirebaseApp firebaseApp() throws IOException, FileNotFoundException {
-        if (firebaseFilePath == null || firebaseFilePath.isEmpty()) {
-            throw new IllegalArgumentException("FIREBASE_CREDENTIALS environment variable is not set.");
-        }
         FileInputStream serviceAccount =
-                new FileInputStream(firebaseFilePath);
+                new FileInputStream("FIREBASE_FILE");
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import swp.koi.convert.AuctionEntityToDtoConverter;
 import swp.koi.convert.AuctionRequestEntityToDtoConverter;
 import swp.koi.convert.KoiFishEntityToDtoConverter;
+import swp.koi.convert.LotEntityToDtoConverter;
 import swp.koi.dto.request.*;
 import swp.koi.dto.response.*;
 import swp.koi.exception.KoiException;
@@ -34,12 +35,13 @@ public class AuctionController {
     private final AuctionRequestService auctionRequestService;
     private final KoiBreederService koiBreederService;
     private final AccountService accountService;
+    private final LotEntityToDtoConverter lotEntityToDtoConverter;
 
     @Operation(summary = "Retrieve all fish")
     @GetMapping("/manager/getFish")
     public ResponseData<?> getKoiFishFromApproveRequest(){
         List<KoiFishResponseDTO> response = koiFishEntityToDtoConverter
-                .convertFishList(koiFishService.getKoiFishFromApproveRequest());
+                .convertFishList(koiFishService.getKoiFishFromRegisteredRequest());
         return new ResponseData<>(ResponseCode.SUCCESS_GET_LIST, response);
     }
 
@@ -96,8 +98,9 @@ public class AuctionController {
 
     @Operation(summary = "Retrieve details of a lot")
     @GetMapping("/auction/get-lot/{lotId}")
-    public ResponseData<LotResponseDto> getLot(@PathVariable Integer lotId){
-        return new ResponseData<>(ResponseCode.SUCCESS, auctionService.getLot(lotId));
+    public ResponseData<?> getLot(@PathVariable Integer lotId){
+        LotResponseDto response = lotEntityToDtoConverter.convertLot(auctionService.getLot(lotId));
+        return new ResponseData<>(ResponseCode.SUCCESS, response);
     }
 
     @Operation(summary = "Retrieve auctioning")

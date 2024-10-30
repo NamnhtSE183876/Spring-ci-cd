@@ -28,4 +28,8 @@ public interface InvoiceService {
     List<Invoice> listOfInvoices();
 
     void updateInvoiceStatus(Integer invoiceId, InvoiceStatusEnums status);
+
+    List<Invoice> listAllInvoicesForManager();
+
+    List<Invoice> getAllInvoices();
 }

@@ -15,10 +15,5 @@ import swp.koi.service.koiFishService.KoiFishService;
 public class KoiFishController {
 
     private final KoiFishService koiFishService;
-//
-//    @GetMapping("/get-all-transport")
-//    public ResponseData<?> getAllTransport(){
-//
-//    }
 
 }

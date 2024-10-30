@@ -9,7 +9,7 @@ public enum ResponseCode {
     SUCCESS_GET_LIST(200, "Data retrieved successfully."),
     SUCCESS_SIGN_UP(200, "Sign up successful."),
     FAIL(000, "Fail"),
-    FOUND_NOTHING(001, "Nothing here. Try again"),
+    FOUND_NOTHING(012, "Nothing here. Try again"),
 
     // Authentication / Authorization
     SUCCESS_LOGIN(001, "Login successful."),
@@ -54,6 +54,7 @@ public enum ResponseCode {
     LOT_REGISTER_SUCCESS(4001, "Lot registration successful"),
     MEMBER_ALREADY_REGISTERED(4002, "Member already REGISTERED."),
     LOT_BIDTIME_PASSED(4003, "Lot bid time passed"),
+    LOT_REGISTER_NOT_FOUND(4004, "Lot registration not found"),
 
     // Bid related statuses
     BID_SUCCESS(5001, "Bid placed successfully"),
