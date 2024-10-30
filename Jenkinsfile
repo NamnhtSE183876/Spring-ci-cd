@@ -102,8 +102,8 @@ pipeline {
                         -e SPRING_MAIL_USERNAME="$MAIL_USERNAME" \
                         -e SPRING_MAIL_PASSWORD="$MAIL_PASSWORD" \
                         -e GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
-                        -e FIREBASE_FILE="/app/config/firebasenew.json" \
-                        --mount type=bind,source="${FIREBASE_FILE_PATH}",target=/app/config/firebasenew.json \
+                        -e FIREBASE_FILE="/app/config/.env" \
+                        --mount type=bind,source="${FIREBASE_FILE_PATH}",target=/app/config/.env \
                         -p 8443:8443 -p 8081:8081 lagux/springboot
                     """
                 }

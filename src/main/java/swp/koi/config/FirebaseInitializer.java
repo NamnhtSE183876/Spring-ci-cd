@@ -24,7 +24,7 @@ public class FirebaseInitializer {
         }
 
         FileInputStream serviceAccount =
-                new FileInputStream("FIREBASE_FILE");
+                new FileInputStream(firebaseFilePath);
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
