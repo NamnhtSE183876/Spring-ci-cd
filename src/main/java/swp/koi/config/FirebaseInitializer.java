@@ -13,8 +13,15 @@ import java.io.IOException;
 @Configuration
 public class FirebaseInitializer {
 
+    String firebaseFilePath = System.getenv("FIREBASE_FILE");
+
     @Bean
     public FirebaseApp firebaseApp() throws IOException, FileNotFoundException {
+
+        if (firebaseFilePath == null || firebaseFilePath.isEmpty()) {
+            throw new IllegalArgumentException("FIREBASE_CREDENTIALS environment variable is not set.");
+        }
+
         FileInputStream serviceAccount =
                 new FileInputStream("FIREBASE_FILE");
 
