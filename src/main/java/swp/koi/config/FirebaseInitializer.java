@@ -19,6 +19,7 @@ public class FirebaseInitializer {
     public FirebaseApp firebaseApp() throws IOException, FileNotFoundException {
 
         if (firebaseFilePath == null || firebaseFilePath.isEmpty()) {
+            System.out.println("FIREBASE_CREDENTIALS environment variable is not set.");
             throw new IllegalArgumentException("FIREBASE_CREDENTIALS environment variable is not set.");
         }
 

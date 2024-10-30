@@ -12,7 +12,6 @@ pipeline {
         MAIL_USERNAME = credentials('mail-username')
         MAIL_PASSWORD = credentials('mail-password')
         GOOGLE_CLIENT_ID = credentials('google-api-key')
-        FIREBASE_FILE = credentials('firebase-file')
         HOST = credentials("host-ip")
     }
 
