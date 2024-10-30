@@ -91,7 +91,6 @@ pipeline {
                 // Sử dụng withCredentials để lấy file bí mật
                 withCredentials([file(credentialsId: 'firebase-file', variable: 'FIREBASE_FILE_PATH')]) {
                     // Deploy Docker container cho ứng dụng Spring Boot
-                    sh "echo FIREBASE_FILE_PATH is: ${FIREBASE_FILE_PATH}"
                     sh 'docker stop myapp || true'
                     sh 'docker rm myapp || true'
                     sh """
